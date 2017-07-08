@@ -1,39 +1,30 @@
 import scrapy
 from scrapy_splash import SplashRequest
+from scrapy.selector import Selector
+from scrapy.http import HtmlResponse
 
 class QuotesSpider(scrapy.Spider):
     name = 'quotes'
-    start_urls = ["https://www.realcanadiansuperstore.ca/Food/Meat-%26-Seafood/c/RCSS001004000000"]
+    start_urls = ["https://www.realcanadiansuperstore.ca/Food/Fruits-%26-Vegetables/c/RCSS001001000000"]
+    WAIT_TIME = 10
 
-    
-    
 
-    
     def start_requests(self):
         for url in self.start_urls:
-            yield SplashRequest(url, callback = self.parse, endpoint = 'render.html', args = {'wait':3},
-                                headers={'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36'
-                                                                                       ,'currentRegion' : 'CA-BC'})
+            yield SplashRequest(url, callback = self.parse, endpoint = 'render.html', args = {'wait':self.WAIT_TIME,'images':0},)
+
 
     def parse(self, response):
 
-        file = open('links2.txt' , 'w')
+        seeAllList1 = []
 
-        item = {}
-        item['urls'] = []
-        
-        itemList = response.css('div.product-name-wrapper > a.product-name::attr(href)').extract()
+        sel1 = response.selector.css('li[data-level="1"]')[1:10]
 
-        for links in itemList:
-            item['urls'].append(links)
-            file.write(links)
-            file.write('\n')
+        sel2 = sel1.css('li[data-level="3"] > a.sub-nav-link::attr(href)')
 
-        
+        seeAllList1 = sel2.extract()
+        print("------------MAIN LINKS------------------\n")
+        print(seeAllList1)
+        print('\n\n')
 
-        yield item
-        
-        
-        
-        
-        
+        yield None
